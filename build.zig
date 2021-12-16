@@ -1,6 +1,42 @@
 const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
+    const compile_metal_ir = b.addSystemCommand(&[_][]const u8{
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-c",
+        "src/shaders.metal",
+        "-I",
+        "include",
+        "-o",
+        "src/shaders.air",
+    });
+
+    var compile_metal_lib = b.addSystemCommand(&[_][]const u8{
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "src/shaders.air",
+        "-o",
+        "src/shaders.metallib",
+    });
+    compile_metal_lib.step.dependOn(&compile_metal_ir.step);
+
+    var install_metal_lib = b.addInstallFileWithDir(.{ .path = "src/shaders.metallib" }, .prefix, "bin/default.metallib");
+    install_metal_lib.step.dependOn(&compile_metal_lib.step);
+
+    var clean_metal_artifacts = b.addSystemCommand(&[_][]const u8{
+        "rm",
+        "src/shaders.air",
+        "src/shaders.metallib",
+    });
+    clean_metal_artifacts.step.dependOn(&install_metal_lib.step);
+
+    b.getInstallStep().dependOn(&clean_metal_artifacts.step);
+    
     // Standard target options allows the person running `zig build` to choose
     // what target to build for. Here we do not override the defaults, which
     // means any target is allowed, and the default is native. Other options
@@ -12,9 +48,18 @@ pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
 
     const exe = b.addExecutable("metal-triangle", "src/main.zig");
+
+    exe.addIncludeDir("external");
+    exe.addCSourceFile("external/cgltf.c", &[_][]const u8{"-std=c99"});
+    // GLFW
     exe.addIncludeDir("/opt/homebrew/Cellar/glfw/3.3.5/include");
     exe.addLibPath("/opt/homebrew/Cellar/glfw/3.3.5/lib");
     exe.linkSystemLibrary("glfw"); 
+
+    // System frameworks for Metal
+    exe.linkFramework("QuartzCore"); 
+    exe.linkFramework("Metal"); 
+
     exe.setTarget(target);
     exe.setBuildMode(mode);
     exe.install();
