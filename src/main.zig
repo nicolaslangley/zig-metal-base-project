@@ -53,18 +53,25 @@ pub fn main() anyerror!void {
     // Vertex data
     const attributes: [*]c.cgltf_attribute = gltf_data.*.meshes[0].primitives[0].attributes;
     const vertex_count = attributes[1].data.*.count;
-    const attribute_data = attributes[1].data;
-    const attribute_stride = attribute_data.*.stride;
-    const attribute_ptr = @alignCast(4, @ptrCast([*]const u8, attribute_data.*.buffer_view.*.buffer.*.data) + attribute_data.*.offset + attribute_data.*.buffer_view.*.offset);
+    const position_data = attributes[1].data;
+    const position_stride = position_data.*.stride;
+    const position_ptr = @alignCast(4, @ptrCast([*]const u8, position_data.*.buffer_view.*.buffer.*.data) + position_data.*.offset + position_data.*.buffer_view.*.offset);
+    const position_buffer = device.newBufferWithBytes(position_ptr, vertex_count * position_stride, metal.ResourceOptions.StorageModeShared);
 
-    const vertex_buffer = device.newBufferWithBytes(attribute_ptr, vertex_count * attribute_stride, metal.ResourceOptions.StorageModeShared);
+    const normal_data = attributes[0].data;
+    const normal_stride = normal_data.*.stride;
+    const normal_ptr = @alignCast(4, @ptrCast([*]const u8, normal_data.*.buffer_view.*.buffer.*.data) + normal_data.*.offset + normal_data.*.buffer_view.*.offset);
+    const normal_buffer = device.newBufferWithBytes(normal_ptr, vertex_count * normal_stride, metal.ResourceOptions.StorageModeShared);
 
     const vertex_desc = metal.createVertexDescriptor();
-    const vertex_attribute = vertex_desc.attributes().objectAt(0);
-    vertex_attribute.setFormat(metal.VertexFormat.Float3);
-    vertex_attribute.setOffset(0);
-    vertex_attribute.setBufferIndex(0);
-    vertex_desc.layouts().objectAt(0).setStride(attribute_stride);
+    vertex_desc.attributes().objectAt(0).setFormat(metal.VertexFormat.Float3);
+    vertex_desc.attributes().objectAt(0).setOffset(0);
+    vertex_desc.attributes().objectAt(0).setBufferIndex(0);
+    vertex_desc.attributes().objectAt(1).setFormat(metal.VertexFormat.Float3);
+    vertex_desc.attributes().objectAt(1).setOffset(position_stride);
+    vertex_desc.attributes().objectAt(1).setBufferIndex(0);
+    vertex_desc.layouts().objectAt(0).setStride(position_stride);
+    vertex_desc.layouts().objectAt(0).setStride(normal_stride);
 
     const pipeline_desc = metal.createRenderPipelineDescriptor();
     pipeline_desc.setVertexFunction(vertex_function);
@@ -93,8 +100,9 @@ pub fn main() anyerror!void {
 
         const render_encoder = command_buffer.renderCommandEncoder(pass_desc);
         render_encoder.setRenderPipelineState(pipeline_state);
-        render_encoder.setVertexBuffer(vertex_buffer, 0, 0);
-        render_encoder.setVertexBytes(@ptrCast(*const c_void, &mvp_matrix), @sizeOf(simd.Mat4), 1);
+        render_encoder.setVertexBuffer(position_buffer, 0, 0);
+        render_encoder.setVertexBuffer(normal_buffer, 0, 1);
+        render_encoder.setVertexBytes(@ptrCast(*const c_void, &mvp_matrix), @sizeOf(simd.Mat4), 2);
         render_encoder.drawIndexedPrimitives(metal.PrimitiveType.Triangle, indices_count, metal.IndexType.UInt16, index_buffer, 0);
         render_encoder.endEncoding();
 

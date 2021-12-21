@@ -5,6 +5,7 @@ using namespace metal;
 struct VertexIn
 {
   float3 position [[attribute(0)]];
+  float3 normal [[attribute(1)]];
 };
 
 struct VertexOut
@@ -13,7 +14,7 @@ struct VertexOut
 };
 
 vertex VertexOut render_vertex(VertexIn v_in [[stage_in]],
-                               constant float4x4& mvp_matrix [[buffer(1)]])
+                               constant float4x4& mvp_matrix [[buffer(2)]])
 {
   VertexOut out;
   out.position = mvp_matrix * float4(v_in.position, 1.0);
