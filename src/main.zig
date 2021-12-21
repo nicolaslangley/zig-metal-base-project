@@ -34,9 +34,8 @@ pub fn main() anyerror!void {
     const vertex_function = library.newFunction("render_vertex");
     const fragment_function = library.newFunction("render_fragment");
 
-
     // Parse and load GLTF
-    const file_path = "/Users/nicolaslangley/Developer/metal_projects/metal-base-project/data/Box.glb";
+    const file_path = "/Users/nicolaslangley/Developer/zig_projects/metal-triangle/data/Box.glb";
     const options = std.mem.zeroes(c.cgltf_options);
     var gltf_data: *c.cgltf_data = undefined;
     var result = c.cgltf_parse_file(&options, file_path, @ptrCast([*c][*c]c.cgltf_data, &gltf_data));
