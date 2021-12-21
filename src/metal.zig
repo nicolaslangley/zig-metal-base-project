@@ -1,4 +1,6 @@
-const c = @import("c.zig");
+const c = @cImport({
+    @cInclude("objc/message.h");
+});
 
 // Adapted from: https://github.com/mkeeter/rayray/blob/master/src/objc.zig
 fn class(s: [*c]const u8) c.id {

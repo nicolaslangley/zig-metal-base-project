@@ -49,11 +49,10 @@ pub fn build(b: *std.build.Builder) void {
 
     const exe = b.addExecutable("metal-triangle", "src/main.zig");
 
-    exe.addIncludeDir("external");
-    exe.addCSourceFile("external/cgltf.c", &[_][]const u8{"-std=c99"});
+    exe.addIncludeDir("external/src");
+    exe.addCSourceFile("external/src/cgltf.c", &[_][]const u8{"-std=c99"});
     // GLFW
-    exe.addIncludeDir("/opt/homebrew/Cellar/glfw/3.3.5/include");
-    exe.addLibPath("/opt/homebrew/Cellar/glfw/3.3.5/lib");
+    exe.addLibPath("external/bin");
     exe.linkSystemLibrary("glfw"); 
 
     // System frameworks for Metal
