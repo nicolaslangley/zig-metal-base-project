@@ -1,10 +1,10 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-const c = @import("c.zig");
-const darwin = @import("darwin.zig");
-const metal = @import("metal.zig");
-const simd = @import("simd.zig");
+const c = @import("c");
+const darwin = @import("darwin");
+const metal = @import("metal");
+const simd = @import("simd");
     
 pub fn main() anyerror!void {
     if (c.glfwInit() != 1) {
