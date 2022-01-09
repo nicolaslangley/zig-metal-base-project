@@ -17,7 +17,7 @@ pub fn main() anyerror!void {
 
     const width = 640;
     const height = 480;
-    const window: *c.GLFWwindow = c.glfwCreateWindow(width, height, "Metal Triangle", null, null) orelse return;
+    const window: *c.GLFWwindow = c.glfwCreateWindow(width, height, "Metal Starter Project", null, null) orelse return;
     defer c.glfwDestroyWindow(window);
 
     const content_view = metal.createContentView(darwin.glfwGetCocoaWindow(window).?);
@@ -35,7 +35,7 @@ pub fn main() anyerror!void {
     const fragment_function = library.newFunction("render_fragment");
 
     // Parse and load GLTF
-    const file_path = "/Users/nicolaslangley/Developer/zig_projects/metal-triangle/data/Box.glb";
+    const file_path = "/Users/nicolaslangley/Developer/zig_projects/zig-metal-starter-project/data/Box.glb";
     const options = std.mem.zeroes(c.cgltf_options);
     var gltf_data: *c.cgltf_data = undefined;
     var result = c.cgltf_parse_file(&options, file_path, @ptrCast([*c][*c]c.cgltf_data, &gltf_data));

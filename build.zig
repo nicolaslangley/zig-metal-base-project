@@ -47,7 +47,7 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    const exe = b.addExecutable("metal-triangle", "src/main.zig");
+    const exe = b.addExecutable("zig-metal-starter-project", "src/main.zig");
 
     exe.addPackagePath("c", "libs/c.zig");
     exe.addPackagePath("darwin", "libs/darwin.zig");
