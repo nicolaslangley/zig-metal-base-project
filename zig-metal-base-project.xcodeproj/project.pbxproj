@@ -22,7 +22,7 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1310;
 			};
-			buildConfigurationList = 236EFA3227653F8600583BAB /* Build configuration list for PBXProject "zig-metal-triangle" */;
+			buildConfigurationList = 236EFA3227653F8600583BAB /* Build configuration list for PBXProject "zig-metal-base-project" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -54,7 +54,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		236EFA3227653F8600583BAB /* Build configuration list for PBXProject "zig-metal-triangle" */ = {
+		236EFA3227653F8600583BAB /* Build configuration list for PBXProject "zig-metal-base-project" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				236EFA3327653F8600583BAB /* Debug */,
