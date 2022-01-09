@@ -86,7 +86,7 @@ const MetalDrawable = struct {
     }
 };
 
-pub fn createContentView(window: *c_void) ContentView {
+pub fn createContentView(window: *anyopaque) ContentView {
     const ns_window = @ptrCast(c.id, @alignCast(8, window));
     const view = call(ns_window, "contentView");
     _ = call_(view, "setWantsLayer:", .{true});
@@ -123,7 +123,7 @@ const Device = struct {
         return Buffer{ .objc_id = call_(self.objc_id, "newBufferWithLength:options:", .{ length, @enumToInt(options) }) };
     }
 
-    pub fn newBufferWithBytes(self: Device, bytes: *const c_void, length: u64, options: ResourceOptions) Buffer {
+    pub fn newBufferWithBytes(self: Device, bytes: *const anyopaque, length: u64, options: ResourceOptions) Buffer {
         return Buffer{ .objc_id = call_(self.objc_id, "newBufferWithBytes:length:options:", .{ bytes, length, @enumToInt(options) }) };
     }
 
@@ -132,7 +132,7 @@ const Device = struct {
     }
 
     pub fn newRenderPipelineState(self: Device, pipeline_descriptor: RenderPipelineDescriptor) RenderPipelineState {
-        return RenderPipelineState{ .objc_id = call_(self.objc_id, "newRenderPipelineStateWithDescriptor:error:", .{pipeline_descriptor.objc_id, c.nil})};
+        return RenderPipelineState{ .objc_id = call_(self.objc_id, "newRenderPipelineStateWithDescriptor:error:", .{ pipeline_descriptor.objc_id, c.nil }) };
     }
 };
 
@@ -223,7 +223,7 @@ const RenderPassColorAttachmentDescriptor = struct {
 
 // https://developer.apple.com/documentation/metal/mtlprimitivetype?language=objc#
 pub const PrimitiveType = enum(u32) {
-    Triangle = 3
+    Triangle = 3,
 };
 
 // https://developer.apple.com/documentation/metal/mtlindextype?language=objc
@@ -243,7 +243,7 @@ const RenderCommandEncoder = struct {
         _ = call_(self.objc_id, "setVertexBuffer:offset:atIndex:", .{ vertex_buffer.objc_id, offset, index });
     }
 
-    pub fn setVertexBytes(self: RenderCommandEncoder, bytes: *const c_void, length: u32, index: u32) void {
+    pub fn setVertexBytes(self: RenderCommandEncoder, bytes: *const anyopaque, length: u32, index: u32) void {
         _ = call_(self.objc_id, "setVertexBytes:length:atIndex:", .{ bytes, length, index });
     }
 
@@ -259,7 +259,7 @@ const RenderCommandEncoder = struct {
 const Buffer = struct {
     objc_id: c.id,
 
-    pub fn contents(self: Buffer) *c_void {
+    pub fn contents(self: Buffer) *anyopaque {
         return call(self.objc_id, "contents");
     }
 };
@@ -346,7 +346,7 @@ const Library = struct {
 
     pub fn newFunction(self: Library, function_name: [*:0]const u8) Function {
         const string = createNSString(function_name);
-        return Function{ .objc_id = call_(self.objc_id, "newFunctionWithName:", .{string})};
+        return Function{ .objc_id = call_(self.objc_id, "newFunctionWithName:", .{string}) };
     }
 };
 
@@ -356,7 +356,7 @@ const Function = struct {
 
 pub fn createRenderPipelineDescriptor() RenderPipelineDescriptor {
     const render_pipeline_descriptor = class("MTLRenderPipelineDescriptor");
-    return RenderPipelineDescriptor{ .objc_id = call(call(render_pipeline_descriptor, "alloc"), "init")};
+    return RenderPipelineDescriptor{ .objc_id = call(call(render_pipeline_descriptor, "alloc"), "init") };
 }
 
 const RenderPipelineDescriptor = struct {
@@ -403,6 +403,3 @@ const RenderPipelineColorAttachmentDescriptor = struct {
 const RenderPipelineState = struct {
     objc_id: c.id,
 };
-
-
-

@@ -3,10 +3,12 @@ const std = @import("std");
 pub const Mat4 = [4][4]f32;
 
 pub inline fn matrixTranslation(tx: f32, ty: f32, tz: f32) Mat4 {
-    return Mat4{[_]f32{ 1.0, 0.0, 0.0, 0.0 },
-                [_]f32{ 0.0, 1.0, 0.0, 0.0 },
-                [_]f32{ 0.0, 0.0, 1.0, 0.0 },
-                [_]f32{ tx, ty, tz, 1.0 },};
+    return Mat4{
+        [_]f32{ 1.0, 0.0, 0.0, 0.0 },
+        [_]f32{ 0.0, 1.0, 0.0, 0.0 },
+        [_]f32{ 0.0, 0.0, 1.0, 0.0 },
+        [_]f32{ tx, ty, tz, 1.0 },
+    };
 }
 
 pub inline fn matrixPerspectiveRightHand(fovy_radians: f32, aspect: f32, near_z: f32, far_z: f32) Mat4 {
@@ -14,10 +16,12 @@ pub inline fn matrixPerspectiveRightHand(fovy_radians: f32, aspect: f32, near_z:
     const xs = ys / aspect;
     const zs = far_z / (near_z - far_z);
 
-    return Mat4{[_]f32{ xs, 0.0, 0.0, 0.0 },
-                [_]f32{ 0.0, ys, 0.0, 0.0 },
-                [_]f32{ 0.0, 0.0, zs, -1.0 },
-                [_]f32{ 0.0, 0.0, near_z * zs, 1.0 },};
+    return Mat4{
+        [_]f32{ xs, 0.0, 0.0, 0.0 },
+        [_]f32{ 0.0, ys, 0.0, 0.0 },
+        [_]f32{ 0.0, 0.0, zs, -1.0 },
+        [_]f32{ 0.0, 0.0, near_z * zs, 1.0 },
+    };
 }
 
 pub inline fn matrixMultiply(x: Mat4, y: Mat4) Mat4 {

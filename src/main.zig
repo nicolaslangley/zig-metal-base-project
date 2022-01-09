@@ -5,7 +5,7 @@ const c = @import("c");
 const darwin = @import("darwin");
 const metal = @import("metal");
 const simd = @import("simd");
-    
+
 pub fn main() anyerror!void {
     if (c.glfwInit() != 1) {
         std.log.info("Failed to initialize GLFW", .{});
@@ -79,7 +79,7 @@ pub fn main() anyerror!void {
     pipeline_desc.colorAttachments().objectAt(0).setPixelFormat(metal.PixelFormat.BGRA8Unorm);
 
     const pipeline_state = device.newRenderPipelineState(pipeline_desc);
-     
+
     const view_matrix = simd.matrixTranslation(0.0, -2.0, -8.0);
     const projection_matrix = simd.matrixPerspectiveRightHand(65.0 * (std.math.pi / 180.0), @intToFloat(f32, width) / @intToFloat(f32, height), 0.1, 100.0);
     const mvp_matrix = simd.matrixMultiply(projection_matrix, view_matrix);
@@ -101,7 +101,7 @@ pub fn main() anyerror!void {
         render_encoder.setRenderPipelineState(pipeline_state);
         render_encoder.setVertexBuffer(position_buffer, 0, 0);
         render_encoder.setVertexBuffer(normal_buffer, 0, 1);
-        render_encoder.setVertexBytes(@ptrCast(*const c_void, &mvp_matrix), @sizeOf(simd.Mat4), 2);
+        render_encoder.setVertexBytes(@ptrCast(*const anyopaque, &mvp_matrix), @sizeOf(simd.Mat4), 2);
         render_encoder.drawIndexedPrimitives(metal.PrimitiveType.Triangle, indices_count, metal.IndexType.UInt16, index_buffer, 0);
         render_encoder.endEncoding();
 
