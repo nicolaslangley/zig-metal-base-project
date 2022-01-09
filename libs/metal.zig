@@ -15,7 +15,7 @@ fn call(obj: c.id, sel_name: [*c]const u8) c.id {
     return f(obj, c.sel_getUid(sel_name));
 }
 
-fn call_(obj: c.id, sel_name: [*c]const u8, args: anytype) c.id {
+fn callWithArgs(obj: c.id, sel_name: [*c]const u8, args: anytype) c.id {
     //  objc_msgSend has the prototype "void objc_msgSend(void)",
     //  so we have to cast it based on the types of our arguments
     //  (https://www.mikeash.com/pyblog/objc_msgsends-new-prototype.html)
@@ -58,7 +58,7 @@ fn call_(obj: c.id, sel_name: [*c]const u8, args: anytype) c.id {
 
 fn createNSString(str: [*:0]const u8) c.id {
     const ns_string = class("NSString");
-    return call_(call(ns_string, "alloc"), "initWithUTF8String:", .{str});
+    return callWithArgs(call(ns_string, "alloc"), "initWithUTF8String:", .{str});
 }
 
 pub fn createMetalLayer() MetalLayer {
@@ -70,7 +70,7 @@ const MetalLayer = struct {
     objc_id: c.id,
 
     pub fn setDevice(self: MetalLayer, device: Device) void {
-        _ = call_(self.objc_id, "setDevice:", .{device.objc_id});
+        _ = callWithArgs(self.objc_id, "setDevice:", .{device.objc_id});
     }
 
     pub fn nextDrawable(self: MetalLayer) MetalDrawable {
@@ -89,7 +89,7 @@ const MetalDrawable = struct {
 pub fn createContentView(window: *anyopaque) ContentView {
     const ns_window = @ptrCast(c.id, @alignCast(8, window));
     const view = call(ns_window, "contentView");
-    _ = call_(view, "setWantsLayer:", .{true});
+    _ = callWithArgs(view, "setWantsLayer:", .{true});
     return ContentView{ .objc_id = view };
 }
 
@@ -97,7 +97,7 @@ const ContentView = struct {
     objc_id: c.id,
 
     pub fn setMetalLayer(self: ContentView, layer: MetalLayer) void {
-        _ = call_(self.objc_id, "setLayer:", .{layer.objc_id});
+        _ = callWithArgs(self.objc_id, "setLayer:", .{layer.objc_id});
     }
 };
 
@@ -120,11 +120,11 @@ const Device = struct {
     }
 
     pub fn newBufferWithLength(self: Device, length: u32, options: ResourceOptions) Buffer {
-        return Buffer{ .objc_id = call_(self.objc_id, "newBufferWithLength:options:", .{ length, @enumToInt(options) }) };
+        return Buffer{ .objc_id = callWithArgs(self.objc_id, "newBufferWithLength:options:", .{ length, @enumToInt(options) }) };
     }
 
     pub fn newBufferWithBytes(self: Device, bytes: *const anyopaque, length: u64, options: ResourceOptions) Buffer {
-        return Buffer{ .objc_id = call_(self.objc_id, "newBufferWithBytes:length:options:", .{ bytes, length, @enumToInt(options) }) };
+        return Buffer{ .objc_id = callWithArgs(self.objc_id, "newBufferWithBytes:length:options:", .{ bytes, length, @enumToInt(options) }) };
     }
 
     pub fn newDefaultLibrary(self: Device) Library {
@@ -132,7 +132,7 @@ const Device = struct {
     }
 
     pub fn newRenderPipelineState(self: Device, pipeline_descriptor: RenderPipelineDescriptor) RenderPipelineState {
-        return RenderPipelineState{ .objc_id = call_(self.objc_id, "newRenderPipelineStateWithDescriptor:error:", .{ pipeline_descriptor.objc_id, c.nil }) };
+        return RenderPipelineState{ .objc_id = callWithArgs(self.objc_id, "newRenderPipelineStateWithDescriptor:error:", .{ pipeline_descriptor.objc_id, c.nil }) };
     }
 };
 
@@ -148,11 +148,11 @@ const CommandBuffer = struct {
     objc_id: c.id,
 
     pub fn renderCommandEncoder(self: CommandBuffer, descriptor: RenderPassDescriptor) RenderCommandEncoder {
-        return RenderCommandEncoder{ .objc_id = call_(self.objc_id, "renderCommandEncoderWithDescriptor:", .{descriptor.objc_id}) };
+        return RenderCommandEncoder{ .objc_id = callWithArgs(self.objc_id, "renderCommandEncoderWithDescriptor:", .{descriptor.objc_id}) };
     }
 
     pub fn presentDrawable(self: CommandBuffer, drawable: MetalDrawable) void {
-        _ = call_(self.objc_id, "presentDrawable:", .{drawable.objc_id});
+        _ = callWithArgs(self.objc_id, "presentDrawable:", .{drawable.objc_id});
     }
 
     pub fn commit(self: CommandBuffer) void {
@@ -177,7 +177,7 @@ const RenderPassColorAttachmentDescriptorArray = struct {
     objc_id: c.id,
 
     pub fn objectAt(self: RenderPassColorAttachmentDescriptorArray, index: u32) RenderPassColorAttachmentDescriptor {
-        return RenderPassColorAttachmentDescriptor{ .objc_id = call_(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
+        return RenderPassColorAttachmentDescriptor{ .objc_id = callWithArgs(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
     }
 };
 
@@ -205,19 +205,19 @@ const RenderPassColorAttachmentDescriptor = struct {
     objc_id: c.id,
 
     pub fn setTexture(self: RenderPassColorAttachmentDescriptor, texture: c.id) void {
-        _ = call_(self.objc_id, "setTexture:", .{texture});
+        _ = callWithArgs(self.objc_id, "setTexture:", .{texture});
     }
 
     pub fn setClearColor(self: RenderPassColorAttachmentDescriptor, clear_color: ClearColor) void {
-        _ = call_(self.objc_id, "setClearColor:", .{clear_color});
+        _ = callWithArgs(self.objc_id, "setClearColor:", .{clear_color});
     }
 
     pub fn setLoadAction(self: RenderPassColorAttachmentDescriptor, load_action: LoadAction) void {
-        _ = call_(self.objc_id, "setLoadAction:", .{@enumToInt(load_action)});
+        _ = callWithArgs(self.objc_id, "setLoadAction:", .{@enumToInt(load_action)});
     }
 
     pub fn setStoreAction(self: RenderPassColorAttachmentDescriptor, store_action: StoreAction) void {
-        _ = call_(self.objc_id, "setStoreAction:", .{@enumToInt(store_action)});
+        _ = callWithArgs(self.objc_id, "setStoreAction:", .{@enumToInt(store_action)});
     }
 };
 
@@ -236,19 +236,19 @@ const RenderCommandEncoder = struct {
     objc_id: c.id,
 
     pub fn setRenderPipelineState(self: RenderCommandEncoder, pipeline_state: RenderPipelineState) void {
-        _ = call_(self.objc_id, "setRenderPipelineState:", .{pipeline_state.objc_id});
+        _ = callWithArgs(self.objc_id, "setRenderPipelineState:", .{pipeline_state.objc_id});
     }
 
     pub fn setVertexBuffer(self: RenderCommandEncoder, vertex_buffer: Buffer, offset: u32, index: u32) void {
-        _ = call_(self.objc_id, "setVertexBuffer:offset:atIndex:", .{ vertex_buffer.objc_id, offset, index });
+        _ = callWithArgs(self.objc_id, "setVertexBuffer:offset:atIndex:", .{ vertex_buffer.objc_id, offset, index });
     }
 
     pub fn setVertexBytes(self: RenderCommandEncoder, bytes: *const anyopaque, length: u32, index: u32) void {
-        _ = call_(self.objc_id, "setVertexBytes:length:atIndex:", .{ bytes, length, index });
+        _ = callWithArgs(self.objc_id, "setVertexBytes:length:atIndex:", .{ bytes, length, index });
     }
 
     pub fn drawIndexedPrimitives(self: RenderCommandEncoder, primitive_type: PrimitiveType, index_count: u64, index_type: IndexType, index_buffer: Buffer, index_buffer_offset: u32) void {
-        _ = call_(self.objc_id, "drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:", .{ @enumToInt(primitive_type), index_count, @enumToInt(index_type), index_buffer.objc_id, index_buffer_offset });
+        _ = callWithArgs(self.objc_id, "drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:", .{ @enumToInt(primitive_type), index_count, @enumToInt(index_type), index_buffer.objc_id, index_buffer_offset });
     }
 
     pub fn endEncoding(self: RenderCommandEncoder) void {
@@ -285,7 +285,7 @@ const VertexAttributeDescriptorArray = struct {
     objc_id: c.id,
 
     pub fn objectAt(self: VertexAttributeDescriptorArray, index: u32) VertexAttributeDescriptor {
-        return VertexAttributeDescriptor{ .objc_id = call_(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
+        return VertexAttributeDescriptor{ .objc_id = callWithArgs(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
     }
 };
 
@@ -298,15 +298,15 @@ const VertexAttributeDescriptor = struct {
     objc_id: c.id,
 
     pub fn setFormat(self: VertexAttributeDescriptor, format: VertexFormat) void {
-        _ = call_(self.objc_id, "setFormat:", .{@enumToInt(format)});
+        _ = callWithArgs(self.objc_id, "setFormat:", .{@enumToInt(format)});
     }
 
     pub fn setOffset(self: VertexAttributeDescriptor, offset: u64) void {
-        _ = call_(self.objc_id, "setOffset:", .{offset});
+        _ = callWithArgs(self.objc_id, "setOffset:", .{offset});
     }
 
     pub fn setBufferIndex(self: VertexAttributeDescriptor, buffer_index: u32) void {
-        _ = call_(self.objc_id, "setBufferIndex:", .{buffer_index});
+        _ = callWithArgs(self.objc_id, "setBufferIndex:", .{buffer_index});
     }
 };
 
@@ -314,7 +314,7 @@ const VertexBufferLayoutDescriptorArray = struct {
     objc_id: c.id,
 
     pub fn objectAt(self: VertexBufferLayoutDescriptorArray, index: u32) VertexBufferLayoutDescriptor {
-        return VertexBufferLayoutDescriptor{ .objc_id = call_(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
+        return VertexBufferLayoutDescriptor{ .objc_id = callWithArgs(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
     }
 };
 
@@ -329,15 +329,15 @@ const VertexBufferLayoutDescriptor = struct {
     objc_id: c.id,
 
     pub fn setStepFunction(self: VertexBufferLayoutDescriptor, step_function: VertexStepFunction) void {
-        _ = call_(self.objc_id, "setStepFunction:", .{@enumToInt(step_function)});
+        _ = callWithArgs(self.objc_id, "setStepFunction:", .{@enumToInt(step_function)});
     }
 
     pub fn setStepRate(self: VertexBufferLayoutDescriptor, step_rate: u32) void {
-        _ = call_(self.objc_id, "setStepRate:", .{step_rate});
+        _ = callWithArgs(self.objc_id, "setStepRate:", .{step_rate});
     }
 
     pub fn setStride(self: VertexBufferLayoutDescriptor, stride: u64) void {
-        _ = call_(self.objc_id, "setStride:", .{stride});
+        _ = callWithArgs(self.objc_id, "setStride:", .{stride});
     }
 };
 
@@ -346,7 +346,7 @@ const Library = struct {
 
     pub fn newFunction(self: Library, function_name: [*:0]const u8) Function {
         const string = createNSString(function_name);
-        return Function{ .objc_id = call_(self.objc_id, "newFunctionWithName:", .{string}) };
+        return Function{ .objc_id = callWithArgs(self.objc_id, "newFunctionWithName:", .{string}) };
     }
 };
 
@@ -363,15 +363,15 @@ const RenderPipelineDescriptor = struct {
     objc_id: c.id,
 
     pub fn setVertexFunction(self: RenderPipelineDescriptor, vertex_function: Function) void {
-        _ = call_(self.objc_id, "setVertexFunction:", .{vertex_function.objc_id});
+        _ = callWithArgs(self.objc_id, "setVertexFunction:", .{vertex_function.objc_id});
     }
 
     pub fn setFragmentFunction(self: RenderPipelineDescriptor, fragment_function: Function) void {
-        _ = call_(self.objc_id, "setFragmentFunction:", .{fragment_function.objc_id});
+        _ = callWithArgs(self.objc_id, "setFragmentFunction:", .{fragment_function.objc_id});
     }
 
     pub fn setVertexDescriptor(self: RenderPipelineDescriptor, vertex_descriptor: VertexDescriptor) void {
-        _ = call_(self.objc_id, "setVertexDescriptor:", .{vertex_descriptor.objc_id});
+        _ = callWithArgs(self.objc_id, "setVertexDescriptor:", .{vertex_descriptor.objc_id});
     }
 
     pub fn colorAttachments(self: RenderPipelineDescriptor) RenderPipelineColorAttachmentDescriptorArray {
@@ -383,7 +383,7 @@ const RenderPipelineColorAttachmentDescriptorArray = struct {
     objc_id: c.id,
 
     pub fn objectAt(self: RenderPipelineColorAttachmentDescriptorArray, index: u32) RenderPipelineColorAttachmentDescriptor {
-        return RenderPipelineColorAttachmentDescriptor{ .objc_id = call_(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
+        return RenderPipelineColorAttachmentDescriptor{ .objc_id = callWithArgs(self.objc_id, "objectAtIndexedSubscript:", .{index}) };
     }
 };
 
@@ -396,7 +396,7 @@ const RenderPipelineColorAttachmentDescriptor = struct {
     objc_id: c.id,
 
     pub fn setPixelFormat(self: RenderPipelineColorAttachmentDescriptor, pixel_format: PixelFormat) void {
-        _ = call_(self.objc_id, "setPixelFormat:", .{@enumToInt(pixel_format)});
+        _ = callWithArgs(self.objc_id, "setPixelFormat:", .{@enumToInt(pixel_format)});
     }
 };
 
